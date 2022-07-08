@@ -27,10 +27,10 @@ controller.getAppointments = (req, res, next) => {
     let doctorId;
     const { _id } = res.locals.doctors;
     doctorId = _id;
-    const {date} = req.body.date;
+    const { date, doctorId } = req.body;
     
-    const query = `SELECT * FROM appointment WHERE doctorId = $1 AND date = $2`;
-    const params = [ doctorId, date];
+    const query = `SELECT * FROM appointments WHERE doctorId = $1 AND date = $2`;
+    const params = [doctorId, date];
     db.query(query, params)
       .then(appointments => {
         res.locals.appointments = appointments.rows;
@@ -63,12 +63,14 @@ controller.getAppointments = (req, res, next) => {
   // add a new appointment 
 
   controller.postAppointment = (req, res, next) => {
-    
+    const denoms = [ '00', '15', '30', '45'];
     // manipulate time to 15 min interval 
     let time;
-    const {date} = req.body.date;
+    const { doctorName, patientName, time } = req.body;
+
     const minutes = 15; 
-    const ms = 1000 * 60 * minutes 
+    const ms = 1000 * 60 * minutes
+
 
     time = date(Math.ceil(date.getTime()/ms) *ms)
 
@@ -76,14 +78,26 @@ controller.getAppointments = (req, res, next) => {
     const addAppointmentQuery = `INSERT INTO appointment (firstName, lastName, time, kind) VALUES ($1, $2, $3, $4)`;
     const params = [req.body.firstName, req.body.lastName, time, req.body.kind];
     db.query(addAppointmentQuery, params)
-      .then(() => {
-        return next();
+      .then((data) => {
+        if (data.result) {
+          return next();
+        }
       })
       .catch((err) => {
         console.log("Error found in controller.postAppointment");
         return next(err);
       });
     };
+
+    export const postAppointment = async (req, res, next) => {
+      try {
+
+
+        
+      } catch(error) {
+
+      }
+    }
 
 
 
